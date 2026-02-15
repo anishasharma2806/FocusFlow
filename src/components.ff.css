@@ -1,0 +1,368 @@
+/* 
+  FocusFlow Custom Scoped Components
+  Prefix: ff-
+*/
+
+/* Header Layout */
+.ff-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}
+
+.ff-header-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+/* Section Gaps */
+.ff-section-gap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--gap-section) !important;
+}
+.ff-toggle-container {
+  display: inline-flex !important;
+  background-color: #f1f5f9 !important;
+  padding: 0.35rem !important;
+  border-radius: 1.25rem !important;
+  border: 1px solid #e2e8f0 !important;
+  gap: 0.3rem !important;
+}
+
+.ff-toggle-btn {
+  border: none !important;
+  background: transparent !important;
+  padding: 0.6rem 1.25rem !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: #475569 !important; /* Slate-600 */
+  border-radius: 0.75rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+}
+
+.ff-toggle-btn.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4) !important;
+}
+
+.ff-toggle-btn:hover:not(.active) {
+  background-color: rgba(99, 102, 241, 0.08) !important;
+  color: #6366f1 !important;
+}
+
+/* Subtask Checklist UI */
+.ff-checklist-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 1rem !important;
+  padding: 0.75rem !important;
+  border-radius: 1rem !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  background: #f8fafc !important;
+  border: 1px solid #f1f5f9 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ff-checklist-item:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.ff-checkbox {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  border-radius: 0.4rem !important;
+  border: 2px solid #cbd5e1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 0.1rem !important;
+  transition: all 0.2s ease !important;
+  background: white !important;
+}
+
+.ff-checkbox.checked {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: white !important;
+}
+
+.ff-checklist-text {
+  font-size: 0.9rem !important;
+  color: #334155 !important;
+  line-height: 1.4 !important;
+  transition: color 0.2s ease !important;
+}
+
+.ff-checklist-text.completed {
+  color: #94a3b8 !important;
+  text-decoration: line-through !important;
+}
+
+/* Standard Buttons */
+.ff-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.75rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+}
+
+.ff-btn-primary {
+  background: #6366f1 !important;
+  color: white !important;
+}
+
+.ff-btn-primary:hover {
+  background: #4f46e5 !important;
+}
+
+.ff-btn-outline {
+  background: white !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.ff-btn-outline:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.ff-btn-ghost {
+  background: transparent !important;
+  color: #6366f1 !important;
+}
+
+.ff-btn-ghost:hover {
+  background: #eef2ff !important;
+}
+
+.ff-btn-ai {
+  background: linear-gradient(135deg, #6366f1, #ec4899) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39) !important;
+}
+
+.ff-btn-ai:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+  opacity: 0.9 !important;
+}
+
+/* Progress Labels */
+.ff-badge {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 9999px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.025em !important;
+}
+
+.ff-badge-primary {
+  background-color: #eef2ff !important;
+  color: #4f46e5 !important;
+}
+
+/* Image Modal Styles */
+.ff-image-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.ff-modal-close {
+  position: absolute !important;
+  top: 1.5rem !important;
+  right: 1.5rem !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  padding: 0.5rem !important;
+  cursor: pointer !important;
+  transition: background 0.2s ease !important;
+}
+
+.ff-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Timer Phase Indicators */
+.ff-timer-phase {
+  font-size: 0.85rem !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+  background: #eef2ff !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 0.5rem !important;
+  display: inline-block !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Warning Dialog */
+.ff-dialog-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  z-index: 2000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.ff-dialog-card {
+  background: white !important;
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+  width: 90% !important;
+  max-width: 400px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  text-align: center !important;
+}
+
+.ff-dialog-icon {
+  width: 3rem !important;
+  height: 3rem !important;
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  margin: 0 auto 1rem !important;
+}
+
+.ff-dialog-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ff-dialog-message {
+  color: #4b5563 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.ff-dialog-btn {
+  background: #6366f1 !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  transition: background 0.2s ease !important;
+}
+
+.ff-dialog-btn:hover {
+  background: #4f46e5 !important;
+}
+
+.ff-dialog-btn-outline {
+  background: white !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  transition: all 0.2s ease !important;
+}
+
+.ff-dialog-btn-outline:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.ff-dialog-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+}
+
+/* Resource Section Styling */
+.ff-resource-link {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.6rem 0.75rem !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 0.75rem !important;
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.ff-resource-link:hover {
+  background-color: #f8fafc !important;
+  border-color: #6366f1 !important;
+  color: #6366f1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.ff-resource-card {
+  border-radius: 1rem !important;
+  overflow: hidden !important;
+  border: 1px solid #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ff-resource-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.ff-file-chip {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.4rem 0.75rem !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 2rem !important;
+  color: #475569 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+}
+
+.ff-resource-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
