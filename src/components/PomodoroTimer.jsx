@@ -21,13 +21,13 @@ export default function PomodoroTimer({
   
   // Warning Dialog State
   const [dialog, setDialog] = useState(null); // { title, message, type }
-  const [lastWarnedMin, setLastWarnedMin] = useState(null);
+  const [warnedThresholds, setWarnedThresholds] = useState([]);
   const [lastMode, setLastMode] = useState(timerMode);
   const [lastPhase, setLastPhase] = useState(phase);
 
   // Reset warnings and transitions when key changes (new task)
   useEffect(() => {
-    setLastWarnedMin(null);
+    setWarnedThresholds([]);
     setDialog(null);
     setLastMode(timerMode);
     setLastPhase(phase);
@@ -67,19 +67,19 @@ export default function PomodoroTimer({
     const totalSeconds = initialMinutes * 60;
 
     // Only trigger once per minute threshold
-    if (minsLeft !== lastWarnedMin) {
+    if (!warnedThresholds.includes(minsLeft)) {
       if (minsLeft === 15 && totalSeconds > 20 * 60) {
         setDialog({ title: "Keep Going!", message: "15 minutes to go!", type: "reminder" });
-        setLastWarnedMin(minsLeft);
+        setWarnedThresholds((prev) => [...prev, minsLeft]);
       } else if (minsLeft === 10) {
         setDialog({ title: "10 Minutes Left!", message: "You're entering the final stretch.", type: "warning" });
-        setLastWarnedMin(minsLeft);
+        setWarnedThresholds((prev) => [...prev, minsLeft]);
       } else if (minsLeft === 5) {
         setDialog({ title: "Almost Done!", message: "Only 5 minutes remaining.", type: "warning" });
-        setLastWarnedMin(minsLeft);
+        setWarnedThresholds((prev) => [...prev, minsLeft]);
       }
     }
-  }, [timeLeft, isActive, timerMode, lastWarnedMin, initialMinutes]);
+  }, [timeLeft, isActive, timerMode, warnedThresholds, initialMinutes]);
 
   // Completion check
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function PomodoroTimer({
 
   const resetTimer = () => {
     if (onReset) onReset();
-    setLastWarnedMin(null);
+    setWarnedThresholds([]);
     setDialog(null);
   };
 
