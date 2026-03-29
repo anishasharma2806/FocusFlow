@@ -3,114 +3,103 @@ import { Play, Pause, RotateCcw, AlertCircle, X } from "lucide-react";
 
 export default function PomodoroTimer({
   initialMinutes = 25,
-  autoStart = false,
+  timeLeftProp,
+  isActiveProp,
+  onReset,
   keyProp,
   onStatusChange,
   onTimeUpdate,
   isPomodoro = false,
-  totalDuration = 25,
+  setIsActive,
+  setTimeLeft,
+  phase = 1,
+  totalPhases = 1,
+  timerMode = "focus",
 }) {
-  const [timeLeft, setTimeLeft] = useState(initialMinutes * 60);
-  const [isActive, setIsActive] = useState(autoStart);
+  const timeLeft = timeLeftProp !== undefined ? timeLeftProp : (initialMinutes * 60);
+  const isActive = isActiveProp !== undefined ? isActiveProp : false;
   
   // Warning Dialog State
   const [dialog, setDialog] = useState(null); // { title, message, type }
-  const [hasWarned15, setHasWarned15] = useState(false);
-  const [hasWarned10, setHasWarned10] = useState(false);
-  const [hasWarned5, setHasWarned5] = useState(false);
+  const [lastWarnedMin, setLastWarnedMin] = useState(null);
+  const [lastMode, setLastMode] = useState(timerMode);
+  const [lastPhase, setLastPhase] = useState(phase);
 
-  const totalSeconds = initialMinutes * 60;
-  const currentPhase = isPomodoro ? Math.floor((totalSeconds - timeLeft) / (25 * 60)) + 1 : 1;
-  const totalPhases = isPomodoro ? Math.ceil(initialMinutes / 25) : 1;
-
-  // Reset timer when props change
+  // Reset warnings and transitions when key changes (new task)
   useEffect(() => {
-    setTimeLeft(initialMinutes * 60);
-    setIsActive(autoStart);
-    setHasWarned15(false);
-    setHasWarned10(false);
-    setHasWarned5(false);
+    setLastWarnedMin(null);
     setDialog(null);
-  }, [initialMinutes, keyProp, autoStart, isPomodoro]);
+    setLastMode(timerMode);
+    setLastPhase(phase);
+  }, [keyProp]);
 
-  // Interval logic
+  // Handle Mode/Phase Transitions
   useEffect(() => {
-    let interval = null;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-            const next = prev - 1;
-            
-            // Call update callback
-            if (onTimeUpdate) onTimeUpdate(next);
-
-            // Check warnings
-            const minsLeft = Math.ceil(next / 60);
-            
-            // 15 Min Reminder
-            if (minsLeft === 15 && !hasWarned15 && totalSeconds > 20 * 60) {
-              setDialog({
-                title: "Keep Going!",
-                message: "You've made great progress. 15 minutes to go!",
-                type: "reminder"
-              });
-              setHasWarned15(true);
-            }
-            // 10 Min Warning
-            else if (minsLeft === 10 && !hasWarned10) {
-              setDialog({
-                title: "10 Minutes Left!",
-                message: "Stamina check! You're entering the final stretch.",
-                type: "warning"
-              });
-              setHasWarned10(true);
-            }
-            // 5 Min Warning
-            else if (minsLeft === 5 && !hasWarned5) {
-              setDialog({
-                title: "Almost Done!",
-                message: "Only 5 minutes remaining. Focus purely on the finish line.",
-                type: "warning"
-              });
-              setHasWarned5(true);
-            }
-
-            if (next <= 0) return 0;
-            return next;
+    if (timerMode !== lastMode) {
+      if (timerMode === "break") {
+        setDialog({
+          title: "Time for a break!",
+          message: "Take 5 minutes to stretch and recharge.",
+          type: "success"
         });
-      }, 1000);
+      } else if (timerMode === "focus") {
+        setDialog({
+          title: "Time to get back!",
+          message: "Let's start the next focus phase.",
+          type: "reminder"
+        });
+      }
+      setLastMode(timerMode);
     }
-    return () => clearInterval(interval);
-  }, [isActive, hasWarned15, hasWarned10, hasWarned5, totalSeconds]);
+  }, [timerMode, lastMode]);
+
+  useEffect(() => {
+    if (phase !== lastPhase) {
+      setLastPhase(phase);
+    }
+  }, [phase, lastPhase]);
+
+  // Stable Warning logic
+  useEffect(() => {
+    if (!isActive || timerMode !== "focus") return;
+
+    const minsLeft = Math.ceil(timeLeft / 60);
+    const totalSeconds = initialMinutes * 60;
+
+    // Only trigger once per minute threshold
+    if (minsLeft !== lastWarnedMin) {
+      if (minsLeft === 15 && totalSeconds > 20 * 60) {
+        setDialog({ title: "Keep Going!", message: "15 minutes to go!", type: "reminder" });
+        setLastWarnedMin(minsLeft);
+      } else if (minsLeft === 10) {
+        setDialog({ title: "10 Minutes Left!", message: "You're entering the final stretch.", type: "warning" });
+        setLastWarnedMin(minsLeft);
+      } else if (minsLeft === 5) {
+        setDialog({ title: "Almost Done!", message: "Only 5 minutes remaining.", type: "warning" });
+        setLastWarnedMin(minsLeft);
+      }
+    }
+  }, [timeLeft, isActive, timerMode, lastWarnedMin, initialMinutes]);
 
   // Completion check
   useEffect(() => {
-    if (timeLeft === 0 && isActive) {
-      setIsActive(false);
+    if (timeLeft === 0 && isActive && timerMode === "focus" && phase === totalPhases) {
       setDialog({
         title: "Session Complete!",
         message: "Fantastic work! You've reached your focus goal.",
         type: "success"
       });
-      if (onStatusChange) onStatusChange(false);
     }
-  }, [timeLeft, isActive, onStatusChange]);
+  }, [timeLeft === 0, isActive, timerMode, phase, totalPhases]);
 
   const toggleTimer = () => {
-    const newState = !isActive;
-    setIsActive(newState);
-    if (onStatusChange) onStatusChange(newState);
+    if (onStatusChange) onStatusChange(!isActive);
   };
 
   const resetTimer = () => {
-    if (isActive) {
-        setIsActive(false);
-        if (onStatusChange) onStatusChange(false);
-    }
-    setTimeLeft(totalSeconds);
-    setHasWarned15(false);
-    setHasWarned10(false);
-    setHasWarned5(false);
+    if (onReset) onReset();
+    setLastWarnedMin(null);
+    setDialog(null);
   };
 
   const formatTime = (seconds) => {
@@ -120,23 +109,28 @@ export default function PomodoroTimer({
   };
 
   return (
-    <div className="card timer-container" role="timer" aria-label="Pomodoro Timer">
-      {isPomodoro && totalPhases > 1 && (
-        <div className="ff-timer-phase">
-            Phase {Math.min(currentPhase, totalPhases)} / {totalPhases}
-        </div>
-      )}
+    <div className={`card timer-container ${timerMode === 'break' ? 'bg-indigo-50 border-indigo-200' : ''}`} role="timer" aria-label="Pomodoro Timer">
+      <div className="flex justify-between items-center mb-2">
+        {totalPhases >= 1 && (
+          <div className={`ff-timer-phase ${timerMode === 'break' ? 'text-indigo-600 font-bold' : ''}`}>
+             {timerMode === 'break' ? 'Break Time' : `Phase ${phase} / ${totalPhases}`}
+          </div>
+        )}
+        {timerMode === 'break' && (
+          <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full animate-pulse">BREAK</span>
+        )}
+      </div>
       
       <h2 className="timer-title">
-        {isActive ? "Focusing..." : "Ready to Focus"}
+        {timerMode === 'break' ? "Recharging..." : isActive ? "Focusing..." : "Ready to Focus"}
       </h2>
 
-      <div className="timer-display">{formatTime(timeLeft)}</div>
+      <div className={`timer-display ${timerMode === 'break' ? 'text-indigo-600' : ''}`}>{formatTime(timeLeft)}</div>
 
       <div className="timer-actions">
         <button
           onClick={toggleTimer}
-          className="ff-btn ff-btn-primary"
+          className={`ff-btn ${timerMode === 'break' ? 'ff-btn-outline' : 'ff-btn-primary'}`}
           aria-label={isActive ? "Pause Timer" : "Start Timer"}
         >
           {isActive ? <Pause size={20} /> : <Play size={20} />}
@@ -155,7 +149,7 @@ export default function PomodoroTimer({
       {dialog && (
         <div className="ff-dialog-overlay" onClick={() => setDialog(null)}>
           <div className="ff-dialog-card" onClick={(e) => e.stopPropagation()}>
-            <div className={`ff-dialog-icon ${dialog.type === 'success' ? 'bg-green-100 text-green-600' : ''}`}>
+            <div className={`ff-dialog-icon ${dialog.type === 'success' ? 'bg-green-100 text-green-600' : dialog.type === 'reminder' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'}`}>
               <AlertCircle size={24} />
             </div>
             <h3 className="ff-dialog-title">{dialog.title}</h3>

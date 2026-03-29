@@ -317,12 +317,12 @@ ${projectSection}
     const fileResources = [];
 
     for (const file of formData.files) {
-      // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024;
+      // Increased check file size to 10MB to avoid quota issues (10MB = 10 * 1024 * 1024 bytes)
+      const maxSize = 10 * 1024 * 1024;
 
       if (file.size > maxSize) {
         alert(
-          `File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Please upload files smaller than 5MB.`,
+          `File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Please upload files smaller than 10MB.`,
         );
         continue;
       }
@@ -541,41 +541,43 @@ ${projectSection}
               style={{ display: "none" }}
             />
 
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="fileUpload"
-                className="ff-btn ff-btn-outline cursor-pointer"
-              >
-                Attach Files
-              </label>
-              <span className="text-xs text-secondary">
-                PDF, Docs, Images supported
-              </span>
-            </div>
-
-            {formData.files.length > 0 && (
-              <div className="file-preview mt-3 flex flex-wrap gap-2">
-                {formData.files.map((file, index) => (
-                  <div key={index} className="ff-file-chip">
-                    <span className="truncate max-w-[150px]">{file.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeFile(index)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        padding: 0,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                      className="text-slate-400 hover:text-red-500 transition-colors"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="fileUpload"
+                  className="ff-btn ff-btn-outline cursor-pointer"
+                >
+                  Attach Files
+                </label>
+                <span className="text-xs text-secondary">
+                  PDF, Docs, Images supported
+                </span>
               </div>
-            )}
+
+              {formData.files.length > 0 && (
+                <div className="file-preview flex flex-wrap gap-2 w-full">
+                  {formData.files.map((file, index) => (
+                    <div key={index} className="ff-file-chip">
+                      <span className="truncate max-w-[150px]">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                        className="text-slate-400 hover:text-red-500 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

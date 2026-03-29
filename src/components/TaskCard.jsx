@@ -12,12 +12,33 @@ import {
   Image as ImageIcon,
   ExternalLink,
   ListTodo,
-  X
+  X,
+  Edit3,
+  Save
 } from "lucide-react";
 import "../components.ff.css";
 
 export default function TaskCard({ task, onDelete, onComplete, onStartFocus, onUpdateTask, activeTaskId }) {
   const [expanded, setExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedSubject, setEditedSubject] = useState(task.subject);
+  const [editedTopic, setEditedTopic] = useState(task.topic);
+  const [editedDuration, setEditedDuration] = useState(task.duration);
+  const [editedDifficulty, setEditedDifficulty] = useState(task.difficulty);
+  const [editedRoadmap, setEditedRoadmap] = useState(() => {
+    if (typeof task.roadmap === 'string') return task.roadmap;
+    if (task.roadmap && typeof task.roadmap === 'object') return task.roadmap.overview || '';
+    return '';
+  });
+  const [editedResources, setEditedResources] = useState(() => {
+    if (Array.isArray(task.resources)) {
+      return task.resources
+        .filter(r => typeof r === 'string' ? true : (r && r.type === 'link'))
+        .map(r => typeof r === 'string' ? r : r.url)
+        .join('\n');
+    }
+    return typeof task.resources === 'string' ? task.resources : '';
+  });
   const [enlargedImage, setEnlargedImage] = useState(null);
   const isCompleted = task.completed;
   const isOtherTaskActive = activeTaskId && activeTaskId !== task.id;
@@ -106,15 +127,124 @@ export default function TaskCard({ task, onDelete, onComplete, onStartFocus, onU
     ? Math.round((task.subtasks.filter(st => st.completed).length / task.subtasks.length) * 100)
     : 0;
 
+  const handleOpenResource = (res) => {
+    if (!res.url) return;
+    
+    // For regular links, just open them
+    if (!res.type || res.type === 'link' || !res.url.startsWith('data:')) {
+      window.open(res.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // For data URLs (Base64), convert to Blob to bypass browser security blocks
+    try {
+      const parts = res.url.split(';base64,');
+      const contentType = parts[0].split(':')[1];
+      const raw = window.atob(parts[1]);
+      const rawLength = raw.length;
+      const uInt8Array = new Uint8Array(rawLength);
+
+      for (let i = 0; i < rawLength; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+      }
+
+      const blob = new Blob([uInt8Array], { type: contentType });
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const newWin = window.open(blobUrl, '_blank');
+      
+      // Revoke the blob URL after some time to free up memory
+      if (newWin) {
+        newWin.onload = () => {
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+        };
+      } else {
+        // Fallback for popup blockers
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+      }
+    } catch (e) {
+      console.error("Failed to open file:", e);
+      // Fallback to direct window.open if blob conversion fails
+      window.open(res.url, '_blank');
+    }
+  };
+
   return (
     <div className={`card task-card ${isCompleted ? "task-completed" : ""}`}>
       <div className="task-header">
-        <div className="task-info">
-          <span className="task-subject">{task.subject}</span>
-
-          <h3 className={`task-title ${isCompleted ? "completed-text" : ""}`}>
-            {task.topic}
-          </h3>
+          <div className="task-info w-full">
+            {isEditing ? (
+              <div className="ff-edit-fields space-y-3 mb-4 p-2 bg-slate-50 rounded-xl">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="input-group">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Subject</label>
+                    <input
+                      type="text"
+                      value={editedSubject}
+                      onChange={(e) => setEditedSubject(e.target.value)}
+                      className="ff-edit-input w-full"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Duration (min)</label>
+                    <input
+                      type="number"
+                      value={editedDuration}
+                      onChange={(e) => setEditedDuration(e.target.value)}
+                      className="ff-edit-input w-full"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Topic</label>
+                  <input
+                    type="text"
+                    value={editedTopic}
+                    onChange={(e) => setEditedTopic(e.target.value)}
+                    className="ff-edit-input w-full"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="input-group">
+                    <label className="text-[10px] uppercase font-bold text-slate-400">Difficulty</label>
+                    <select 
+                      value={editedDifficulty} 
+                      onChange={(e) => setEditedDifficulty(e.target.value)}
+                      className="ff-edit-input w-full"
+                    >
+                      <option value="Easy">Easy</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Hard">Hard</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Study Roadmap / Strategy</label>
+                  <textarea
+                    value={editedRoadmap}
+                    onChange={(e) => setEditedRoadmap(e.target.value)}
+                    className="ff-edit-input w-full min-h-[100px] text-xs"
+                    placeholder="Steps to complete this task..."
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Resource Links (one per line)</label>
+                  <textarea
+                    value={editedResources}
+                    onChange={(e) => setEditedResources(e.target.value)}
+                    className="ff-edit-input w-full min-h-[60px] text-xs font-mono"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                <span className="task-subject">{task.subject}</span>
+                <h3 className={`task-title ${isCompleted ? "completed-text" : ""}`}>
+                  {task.topic}
+                </h3>
+              </>
+            )}
 
           <div className="task-meta flex items-center gap-3">
             <span className="flex items-center gap-1">
@@ -147,6 +277,37 @@ export default function TaskCard({ task, onDelete, onComplete, onStartFocus, onU
             title={isCompleted ? "Mark Incomplete" : "Mark Complete"}
           >
             <CheckCircle size={18} />
+          </button>
+
+          <button
+            onClick={() => {
+              if (isEditing) {
+                // Prepare resources: keep non-links (files), replace links
+                const nonLinks = Array.isArray(task.resources) 
+                  ? task.resources.filter(r => typeof r === 'object' && r.type !== 'link')
+                  : [];
+                const newLinks = editedResources.split('\n')
+                  .map(l => l.trim())
+                  .filter(l => l.startsWith('http'))
+                  .map(l => ({ name: l, type: 'link', url: l }));
+
+                onUpdateTask(task.id, { 
+                  subject: editedSubject,
+                  topic: editedTopic,
+                  duration: parseInt(editedDuration) || task.duration,
+                  difficulty: editedDifficulty,
+                  roadmap: editedRoadmap,
+                  resources: [...nonLinks, ...newLinks]
+                });
+                setIsEditing(false);
+              } else {
+                setIsEditing(true);
+              }
+            }}
+            className="btn-icon"
+            title={isEditing ? "Save Change" : "Edit Task"}
+          >
+            {isEditing ? <Save size={18} className="text-green-600" /> : <Edit3 size={18} />}
           </button>
 
           <button
@@ -309,28 +470,37 @@ export default function TaskCard({ task, onDelete, onComplete, onStartFocus, onU
 
                                 {/* PDF (Preview if possible, else link) */}
                                 {res.type && res.type.includes('pdf') && (
-                                    <div className="ff-resource-card">
+                                    <div className="ff-resource-card" key={`pdf-card-${i}`}>
                                         <div className="ff-resource-header">
                                             <FileText size={16} className="text-red-500" />
                                             <span className="text-sm font-medium text-slate-700 truncate flex-1">{res.name}</span>
-                                            <a href={res.url} target="_blank" rel="noopener noreferrer" className="ff-btn ff-btn-ghost" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>Open</a>
+                                            <button 
+                                              onClick={() => handleOpenResource(res)}
+                                              className="ff-btn ff-btn-outline" 
+                                              style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}
+                                            >
+                                              Open
+                                            </button>
                                         </div>
-                                        <iframe src={res.url} className="w-full h-[200px] bg-slate-100" title={res.name}></iframe>
+                                        <iframe 
+                                            key={`pdf-frame-${task.id}-${i}`}
+                                            src={`${res.url}#toolbar=0`} 
+                                            className="w-full h-[200px] bg-slate-100" 
+                                            title={res.name}
+                                        ></iframe>
                                     </div>
                                 )}
 
                                 {/* GENERIC LINK or OTHER FILE */}
                                 {(!res.type || res.type === 'link' || (!res.type.startsWith('image/') && !res.type.startsWith('video/') && !res.type.includes('pdf'))) && (
-                                    <a 
-                                        href={res.url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        className="ff-resource-link"
+                                    <button 
+                                        onClick={() => handleOpenResource(res)}
+                                        className="ff-resource-link w-full text-left"
                                     >
                                         {getResourceIcon(res.url || '')}
                                         <span className="truncate flex-1">{res.name || res.url}</span>
                                         <ExternalLink size={12} className="opacity-50" />
-                                    </a>
+                                    </button>
                                 )}
                             </div>
                         ))

@@ -30,11 +30,11 @@ export default function Dashboard({ stats }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fadeIn">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
       {cards.map((card, index) => (
         <div 
             key={index} 
-            className={`card flex flex-col justify-between p-6 hover:translate-y-[-4px] transition-all duration-300 border ${card.border} ${index === 2 ? 'sm:col-span-2 lg:col-span-1' : ''}`}
+            className={`card flex flex-col justify-between p-6 hover:translate-y-[-4px] transition-all duration-300 border ${card.border}`}
         >
           <div className="flex justify-between items-start mb-6">
             <div className={`p-3 rounded-xl shadow-sm ${card.bg}`}>
